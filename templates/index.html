@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Findings Role Assignment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .finding-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        .finding-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .predicted-role {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .confidence-scores {
+            margin-top: 20px;
+        }
+        
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .score-item:last-child {
+            border-bottom: none;
+        }
+        
+        .role-name {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .score-bar {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .score-value {
+            font-weight: 700;
+            color: #667eea;
+            min-width: 50px;
+            text-align: right;
+        }
+        
+        .keywords-section {
+            margin-top: 25px;
+        }
+        
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .keyword-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .explanation-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e8ed;
+            display: none;
+        }
+        
+        .explanation-text {
+            line-height: 1.6;
+            color: #495057;
+            white-space: pre-line;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Security Findings Role Assignment</h1>
+            <p>AI-Powered Role Prediction for Security Findings</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="finding-text">Enter Security Finding:</label>
+                    <textarea 
+                        id="finding-text" 
+                        class="finding-input" 
+                        placeholder="Describe your security finding here... (e.g., 'AWS S3 bucket has public read access enabled with sensitive data')"
+                    ></textarea>
+                </div>
+                
+                <div class="button-group">
+                    <button id="predict-btn" class="btn btn-primary">
+                        🎯 Predict Role
+                    </button>
+                    <button id="reason-btn" class="btn btn-secondary" style="display: none;">
+                        💡 Show Reasoning
+                    </button>
+                    <button id="retrain-btn" class="btn btn-secondary">
+                        🔄 Retrain Model
+                    </button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing finding and predicting role...</p>
+            </div>
+            
+            <div class="results-section" id="results">
+                <div class="result-card">
+                    <div class="predicted-role" id="predicted-role"></div>
+                    
+                    <div class="confidence-scores">
+                        <h3>📊 Confidence Scores:</h3>
+                        <div id="confidence-list"></div>
+                    </div>
+                    
+                    <div class="keywords-section">
+                        <h3>🔑 Key Terms Identified:</h3>
+                        <div class="keywords-list" id="keywords-list"></div>
+                    </div>
+                </div>
+                
+                <div class="explanation-section" id="explanation">
+                    <h3>🧠 Why This Role?</h3>
+                    <div class="explanation-text" id="explanation-text"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const findingText = document.getElementById('finding-text');
+            const predictBtn = document.getElementById('predict-btn');
+            const reasonBtn = document.getElementById('reason-btn');
+            const retrainBtn = document.getElementById('retrain-btn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const explanation = document.getElementById('explanation');
+            
+            let lastPrediction = null;
+            
+            // Predict role
+            predictBtn.addEventListener('click', async function() {
+                const finding = findingText.value.trim();
+                
+                if (!finding) {
+                    showMessage('Please enter a security finding to analyze.', 'error');
+                    return;
+                }
+                
+                showLoading(true);
+                hideResults();
+                
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ finding: finding })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showMessage(data.error, 'error');
+                    } else {
+                        lastPrediction = data;
+                        displayResults(data);
+                        reasonBtn.style.display = 'inline-block';
+                    }
+                } catch (error) {
+                    showMessage('Error connecting to the prediction service. Please try again.', 'error');
+                    console.error('Prediction error:', error);
+                } finally {
+                    showLoading(false);
+                }
+            });
+            
+            // Show reasoning
+            reasonBtn.addEventListener('click', function() {
+                if (lastPrediction && lastPrediction.explanation) {
+                    document.getElementById('explanation-text').textContent = lastPrediction.explanation;
+                    explanation.style.display = 'block';
+                    reasonBtn.textContent = '🙈 Hide Reasoning';
+                    reasonBtn.onclick = function() {
+                        explanation.style.display = 'none';
+                        reasonBtn.textContent = '💡 Show Reasoning';
+                        reasonBtn.onclick = arguments.callee.caller;
+                    };
+                }
+            });
+            
+            // Retrain model
+            retrainBtn.addEventListener('click', async function() {
+                if (!confirm('Are you sure you want to retrain the model? This may take a few minutes.')) {
+                    return;
+                }
+                
+                const originalText = retrainBtn.textContent;
+                retrainBtn.textContent = '🔄 Retraining...';
+                retrainBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('/retrain', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        showMessage(data.error, 'error');
+                    } else {
+                        showMessage('Model retrained successfully!', 'success');
+                    }
+                } catch (error) {
+                    showMessage('Error retraining model. Please try again.', 'error');
+                    console.error('Retrain error:', error);
+                } finally {
+                    retrainBtn.textContent = originalText;
+                    retrainBtn.disabled = false;
+                }
+            });
+            
+            // Enter key to predict
+            findingText.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    predictBtn.click();
+                }
+            });
+        });
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('reason-btn').style.display = 'none';
+            document.getElementById('explanation').style.display = 'none';
+        }
+        
+        function displayResults(data) {
+            // Show predicted role
+            document.getElementById('predicted-role').textContent = `🎯 Predicted Role: ${data.predicted_role}`;
+            
+            // Show confidence scores
+            const confidenceList = document.getElementById('confidence-list');
+            confidenceList.innerHTML = '';
+            
+            const topRoles = data.top_3_roles || Object.entries(data.confidence_scores).slice(0, 5);
+            
+            topRoles.forEach(([role, score]) => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                
+                const percentage = (score * 100).toFixed(1);
+                
+                scoreItem.innerHTML = `
+                    <span class="role-name">${role}</span>
+                    <div class="score-bar">
+                        <div class="score-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <span class="score-value">${percentage}%</span>
+                `;
+                
+                confidenceList.appendChild(scoreItem);
+            });
+            
+            // Show keywords
+            const keywordsList = document.getElementById('keywords-list');
+            keywordsList.innerHTML = '';
+            
+            if (data.keywords_extracted && data.keywords_extracted.length > 0) {
+                data.keywords_extracted.slice(0, 10).forEach(([keyword, score]) => {
+                    const tag = document.createElement('span');
+                    tag.className = 'keyword-tag';
+                    tag.textContent = keyword;
+                    keywordsList.appendChild(tag);
+                });
+            }
+            
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function showMessage(message, type) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.error-message, .success-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+            
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(messageDiv, mainContent.firstChild);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

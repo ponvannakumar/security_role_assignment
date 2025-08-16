@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Security Role Assignment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <p>Model Management and System Administration</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="admin-section">
+                <h2>Model Management</h2>
+                <div class="button-group">
+                    <button id="retrain-btn" class="btn btn-primary">Retrain Model</button>
+                    <button id="export-btn" class="btn btn-secondary">Export Model</button>
+                    <button id="backup-btn" class="btn btn-secondary">Backup Data</button>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>System Statistics</h2>
+                <div id="stats-container">
+                    <div class="stat-card">
+                        <h3>Total Predictions</h3>
+                        <p id="total-predictions">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Model Accuracy</h3>
+                        <p id="model-accuracy">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Training Data Size</h3>
+                        <p id="training-size">Loading...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Data Upload</h2>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+                    <button type="submit" class="btn btn-primary">Upload Training Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

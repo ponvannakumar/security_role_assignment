@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Security Role Assignment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>API Documentation</h1>
+            <p>Security Findings Role Assignment API</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="api-section">
+                <h2>Endpoints</h2>
+                
+                <div class="endpoint">
+                    <h3>POST /predict</h3>
+                    <p>Predict role for a security finding</p>
+                    <div class="code-block">
+                        <h4>Request:</h4>
+                        <pre><code>{
+  "finding": "AWS S3 bucket has public read access enabled"
+}</code></pre>
+                    </div>
+                    <div class="code-block">
+                        <h4>Response:</h4>
+                        <pre><code>{
+  "predicted_role": "Cloud Security Engineer",
+  "confidence_scores": {
+    "Cloud Security Engineer": 0.85,
+    "Cloud Admin": 0.68,
+    "Security Compliance": 0.45
+  },
+  "keywords_extracted": [["aws", 0.9], ["s3", 0.8]],
+  "explanation": "Detailed reasoning..."
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="endpoint">
+                    <h3>POST /retrain</h3>
+                    <p>Retrain the ML model</p>
+                    <div class="code-block">
+                        <h4>Response:</h4>
+                        <pre><code>{
+  "message": "Model retrained successfully"
+}</code></pre>
+                    </div>
+                </div>
+                
+                <div class="endpoint">
+                    <h3>GET /health</h3>
+                    <p>Check system health</p>
+                    <div class="code-block">
+                        <h4>Response:</h4>
+                        <pre><code>{
+  "status": "healthy",
+  "model_trained": true
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
